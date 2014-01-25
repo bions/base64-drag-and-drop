@@ -35,7 +35,7 @@
             -moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px;}
         .js #drop_zone {background:#efe;}
         .no-js #drop_zone, #drop_zone.highlight {background:#fee;}
-        #list ol {border-bottom:1px #000 solid; margin:0 0 50px; padding:0 0 40px 20px;}
+        #list ol {border-bottom:1px #000 solid; margin:50px 0; padding:0 0 40px 20px;}
         #list ol li {margin:0 0 10px;}
         #list ol li:after {clear:both; content:""; display:table;} /* clearfix */
         dl, dt, dd, figure {float:left; margin:0 20px 0 0;}
@@ -57,8 +57,10 @@
     <p>If dropping images, right click on the thumbnail for the data URI.</p>
     <div id="drop_zone"><noscript>JavaScript must be enabled to use the drop zone.</noscript></div>
     <output id="list"></output>
-    
     <script>
+
+        var glitch_timeout = null;
+
         (function(){
             var processFiles = function (event) {
                 event.stopPropagation();
@@ -86,6 +88,7 @@
                                     figcaption, '</figure>'].join('');
                             }
                             document.getElementById(['file_', index + 1].join('')).innerHTML += [image, textarea].join('');
+                            createGlitchEditors();
                         };
                     })(f, i);
 
@@ -98,7 +101,7 @@
                 }
 
                 if (files.length) {
-                    document.getElementById('list').innerHTML = '<ol>' + output.join('') + '</ol>';
+                    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
                 }
             };
 
@@ -129,28 +132,23 @@
             var docEl = document.documentElement;
             docEl.className = docEl.className.replace('no-', '');
 
-            // on code change, set timeout to refresh image
+            // on code change (keyup), set timeout to refresh image
 
-            window.glitch_timeout = null;
-
-            $('#list .code').each(function(i,el){
-                var code = $(el);
-                
-                console.log(code);
-
-                code.change(function(e){
-
-                    var img = $(code.attr('rel'));
-
-                    console.log('change!')
-                    clearTimeout(window.glitch_timeout);
-
-                    window.glitch_timeout = setTimeout(function(){
-                        img.attr('src',code.val());
-                        console.log('refresh!');
-                    },1000);
+            var createGlitchEditors = function(){
+                $('#list .code').each(function(i,el){
+                    var code = $(el);
+                    code.keyup(function(e){
+                        var img = $(code.attr('rel'));
+                        console.log('change!')
+                        clearTimeout(window.glitch_timeout);
+                        window.glitch_timeout = setTimeout(function(){
+                            img.attr('src',code.val());
+                            console.log('refresh!');
+                        },1000);
+                    });
                 });
-            });
+
+            };
 
         })();
     </script>
